@@ -1,0 +1,61 @@
+---
+alwaysApply: true
+---
+# NestJS CRM Backend Loyihasi Qoidalar
+
+## 1. Asosiy Texnologiyalar (Tech Stack)
+
+* **Framework:** NestJS
+* **Til:** TypeScript
+* **Ma'lumotlar bazasi (DB):** PostgreSQL
+* **ORM:** TypeORM
+* **Autentifikatsiya:** JWT (@nestjs/jwt) va Passport (@nestjs/passport)
+* **Validatsiya:** class-validator va class-transformer
+* **Konfiguratsiya:** @nestjs/config
+* **API Dokumentatsiya:** Swagger (@nestjs/swagger)
+
+## 2. Arxitektura (MVC Pattern)
+
+Loyiha qat'iy modulli arxitekturaga amal qiladi. Har bir modul (`src/modules/*`) quyidagi fayllarni o'z ichiga oladi:
+
+1.  **Controller (`*.controller.ts`):**
+    * Faqat HTTP so'rovlarini qabul qiladi va javob qaytaradi.
+    * Biznes logika uchun **Service**ni chaqiradi.
+    * Kiruvchi ma'lumotlarni tekshirish uchun **DTO**lardan foydalanadi.
+    * `@UseGuards(JwtAuthGuard)` orqali himoyalangan bo'lishi kerak.
+
+2.  **Service (`*.service.ts`):**
+    * Barcha biznes logika shu yerda joylashadi.
+    * Ma'lumotlar bazasi bilan ishlash uchun TypeORM **Repository** (@InjectRepository) dan foydalanadi.
+    * Hech qachon HTTP Request/Response obyektlariga to'g'ridan-to'g'ri bog'liq bo'lmasligi kerak.
+
+3.  **Entity (`*.entity.ts`):**
+    * TypeORM dekoratorlari yordamida ma'lumotlar bazasi jadvalini (schema) belgilaydi.
+    * `src/modules/[module_name]/entities/` papkasida joylashadi.
+
+4.  **DTO (`*.dto.ts`):**
+    * Ma'lumotlar Transfer Obyektlari (Data Transfer Objects).
+    * Controllerga keladigan ma'lumotlarni validatsiya qilish uchun `class-validator` dekoratorlarini ishlatadi (masalan, `@IsString()`, `@IsEmail()`).
+
+## 3. Umumiy (Common) Modullar
+
+* `src/common/guards/`: Autentifikatsiya (`jwt-auth.guard.ts`) va Avtorizatsiya (`roles.guard.ts`) uchun guardlar.
+* `src/common/decorators/`: Maxsus dekoratorlar (masalan, `@CurrentUser`).
+* `src/common/pipes/`: Global validatsiya uchun (`validation.pipe.ts`).
+* `src/config/`: Database (`database.config.ts`) va JWT (`jwt.config.ts`) uchun konfiguratsiya fayllari.
+
+## 4. Ma'lumotlar Bazasi Modeli (ER Model)
+
+Har doim `ER_MODEL.md` fayliga murojaat qiling. Asosiy bog'liqliklar:
+
+* **User (1:1) -> Employee:** Har bir User - bu bitta Employee.
+* **Employee (1:N) -> Task:** Bitta xodim ko'plab vazifalarga ega bo'lishi mumkin.
+* **Client (1:N) -> Deal:** Bitta mijoz ko'plab kelishuvlarga ega bo'lishi mumkin.
+* **Client (1:N) -> Message:** Bitta mijoz ko'plab xabarlarga ega bo'lishi mumkin.
+* **Employee (1:N) -> Message:** Bitta xodim ko'plab xabarlarga ega bo'lishi mumkin.
+
+## 5. Autentifikatsiya va Avtorizatsiya
+
+* **Autentifikatsiya:** Barcha himoyalangan endpointlar `@UseGuards(JwtAuthGuard)` dan foydalanishi kerak.
+* **Avtorizatsiya:** Rollarga asoslangan kirish uchun (`@Roles()`) dekoratori va `RolesGuard` ishlatiladi.
+* **User Rollari:** `admin`, `manager`, `analyst`, `support`.
