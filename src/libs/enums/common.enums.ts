@@ -1,6 +1,7 @@
 export enum Message {
 	SOMETHING_WENT_WRONG = 'Something Went Wrong!!!',
-	NO_DATA_FOUND = 'Noo! Data Found!',
+	NO_DATA_FOUND = 'Noo! Data Found!',	
+	EMAIL_ALREADY_EXISTS = 'Email already exists!',
 	CREATE_FAILED = 'Create FAILED!',
 	UPDATE_FALED = 'Update FAILED!',
 	REMOVE_FAILED = 'Remove FAILED!',

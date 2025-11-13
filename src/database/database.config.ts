@@ -1,5 +1,14 @@
 import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { join } from 'path';
+import { ActivityLog } from '../libs/entities/activity-log';
+import { Client } from '../libs/entities/client';
+import { Deal } from '../libs/entities/deal';
+import { Employee } from '../libs/entities/employee';
+import { Message } from '../libs/entities/message';
+import { Notification } from '../libs/entities/notification';
+import { Task } from '../libs/entities/task';
+import { User } from '../libs/entities/user';
 
 export default registerAs(
   'database',
@@ -10,10 +19,19 @@ export default registerAs(
     username: process.env.DB_USERNAME || 'postgres',
     password: process.env.DB_PASSWORD || '1234',
     database: process.env.DB_DATABASE || 'crm_db',
-    entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+    entities: [
+      User,
+      Client,
+      Deal,
+      Task,
+      Employee,
+      Message,
+      Notification,
+      ActivityLog,
+    ],
     synchronize: process.env.NODE_ENV !== 'production',
     logging: process.env.NODE_ENV === 'development',
-    migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+    migrations: [join(__dirname, '..', 'migrations', '*.{.ts,.js}')],
     migrationsRun: false,
   }),
 );

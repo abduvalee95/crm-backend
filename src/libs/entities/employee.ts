@@ -1,6 +1,15 @@
-
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { User } from './user'
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Message } from './message';
+import { Task } from './task';
+import { User } from './user';
 
 @Entity('employees')
 export class Employee {
@@ -16,13 +25,18 @@ export class Employee {
   @Column({ nullable: true })
   phone: string;
 
-  @OneToOne(() => User, user => user.employee)
+  @Column({ nullable: true })
+  position: string;
+
+  @OneToOne(() => User, (user) => user.employee, {
+    onDelete: 'CASCADE',
+  })
   user: User;
 
-  @OneToMany(() => Task, task => task.employee)
-  tasks: Task[];
+  // @OneToMany(() => Task, (task) => task.employee)
+  // tasks: Task[];
 
-  @OneToMany(() => Message, message => message.employee)
+  @OneToMany(() => Message, (message) => message.employee)
   messages: Message[];
 
   @CreateDateColumn()

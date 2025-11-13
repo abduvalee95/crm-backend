@@ -38,16 +38,16 @@ export class DatabaseModule implements OnModuleInit {
         this.logger.log(`Database runinng ${port}/${database}`);
 
         // PostgreSQL versiyasini olish
-        try {
-          const result = await this.dataSource.query('SELECT version()');
-          const version =
-            result[0].version.split(' ')[0] +
-            ' ' +
-            result[0].version.split(' ')[1];
-          this.logger.log(`PostgreSQL: ${version}`);
-        } catch (error) {
-          this.logger.warn('erorr version');
-        }
+        // try {
+        //   const result = await this.dataSource.query('SELECT version()');
+        //   const version =
+        //     result[0].version.split(' ')[0] +
+        //     ' ' +
+        //     result[0].version.split(' ')[1];
+        //   this.logger.log(`PostgreSQL: ${version}`);
+        // } catch (error) {
+        //   this.logger.warn('erorr version');
+        // }
       } else {
         this.logger.error('Database connection failed');
       }
