@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LoginDto } from 'src/libs/dto/auth/login.dto';
@@ -72,9 +73,19 @@ export class UserService {
 
     const response: User = await this.userRepository.findOne({
       where: { email },
+      select: [
+        'id',
+        'email',
+        'password',
+        'fullName',
+        'role',
+        'avatar',
+        'position',
+        'phone',
+      ],
     });
     if (!response) {
-      throw new BadRequestException('Email or password is incorrect');
+      throw new BadRequestException(Message.EMAIL_OR_PASSWORD_INCORRECT);
     }
     // bu erga statuus qilamiz delete or block
     console.log('before isMatchresponse', response);
@@ -84,7 +95,7 @@ export class UserService {
     );
     console.log('isMatch', isMatch);
     if (!isMatch) {
-      throw new InternalServerErrorException(Message.WRONG_PASSWORD);
+      throw new UnauthorizedException(Message.WRONG_PASSWORD);
     }
     console.log('after response', response);
     response.token = await this.authService.createToken(response);
@@ -98,6 +109,26 @@ export class UserService {
     console.log('User ID:', userId);
 
     // 1. Database dan TO'LIQ user ma'lumotlarini olamiz (password bilan)
+    const user = await this.getUserWithPassword(userId);
+
+    // 2. EMAIL O'ZGARTIRISH - tekshirish va validatsiya
+    if (input.email) {
+      await this.validateAndUpdateEmail(user, input.email);
+    }
+
+    // 3. PASSWORD YANGILASH - validatsiya va hash
+    if (input.currentPassword || input.newPassword) {
+      await this.validateAndUpdatePassword(user, input);
+    }
+
+    // 4. Boshqa fieldlarni yangilash
+    this.updateOtherFields(user, input);
+
+    // 5. User ni saqlash
+    return await this.saveUpdatedUser(user);
+  }
+
+  private async getUserWithPassword(userId: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       select: [
@@ -118,76 +149,80 @@ export class UserService {
       throw new BadRequestException(Message.NO_DATA_FOUND);
     }
 
-    console.log('Current user email:', user.email);
+    return user;
+  }
 
-    // 2. EMAIL O'ZGARTIRISH - tekshirish va validatsiya
-    if (input.email) {
-      const newEmail = input.email.trim().toLowerCase();
+  private async validateAndUpdateEmail(
+    user: User,
+    newEmailInput: string,
+  ): Promise<void> {
+    const newEmail = newEmailInput.trim().toLowerCase();
 
-      // Agar email o'zgarmasa, hech narsa qilmaymiz
-      if (newEmail === user.email) {
-        console.log("Email o'zgarmadi, skip qilamiz");
-      } else {
-        console.log("Email o'zgartirilmoqda:", user.email, '->', newEmail);
-
-        // Yangi email allaqachon mavjudligini tekshiramiz
-        const existingUser = await this.userRepository.findOne({
-          where: { email: newEmail },
-        });
-
-        if (existingUser) {
-          throw new BadRequestException(Message.EMAIL_ALREADY_EXISTS);
-        }
-
-        // Email ni yangilaymiz
-        user.email = newEmail;
-      }
+    // Agar email o'zgarmasa, hech narsa qilmaymiz
+    if (newEmail === user.email) {
+      console.log("Email o'zgarmadi, skip qilamiz");
+      return;
     }
 
-    // 3. PASSWORD YANGILASH - validatsiya va hash
-    if (input.currentPassword || input.newPassword) {
-      // Agar bitta password field berilgan bo'lsa, ikkalasi ham bo'lishi kerak
-      if (!input.currentPassword || !input.newPassword) {
-        throw new BadRequestException(
-          'Both currentPassword and newPassword are required to change password',
-        );
-      }
+    console.log("Email o'zgartirilmoqda:", user.email, '->', newEmail);
 
-      // Joriy password 
-      const isPasswordMatch = await this.authService.comparePassword(
-        input.currentPassword,
-        user.password,
-      );
+    // Yangi email allaqachon mavjudligini tekshiramiz
+    const existingUser = await this.userRepository.findOne({
+      where: { email: newEmail },
+    });
 
-      if (!isPasswordMatch) {
-        throw new BadRequestException('Current password is incorrect');
-      }
-
-      // Yangi password eski password bilan bir xi
-      const isSamePassword = await this.authService.comparePassword(
-        input.newPassword,
-        user.password,
-      );
-
-      if (isSamePassword) {
-        throw new BadRequestException(
-          'New password must be different from current password',
-        );
-      }
-
-      // Yangi passwordni hash qilamiz
-      user.password = await this.authService.hashPassword(input.newPassword);
-      console.log('Password yangilandi');
+    if (existingUser) {
+      throw new BadRequestException(Message.EMAIL_ALREADY_EXISTS);
     }
 
+    // Email ni yangilaymiz
+    user.email = newEmail;
+  }
 
+  private async validateAndUpdatePassword(
+    user: User,
+    input: UpdateUserDto,
+  ): Promise<void> {
+    // Agar bitta password field berilgan bo'lsa, ikkalasi ham bo'lishi kerak
+    if (!input.currentPassword || !input.newPassword) {
+      throw new BadRequestException(Message.PASSWORD_CHANGE_REQUIRED);
+    }
+
+    // Joriy password tekshirish
+    const isPasswordMatch = await this.authService.comparePassword(
+      input.currentPassword,
+      user.password,
+    );
+
+    if (!isPasswordMatch) {
+      throw new BadRequestException(Message.CURRENT_PASSWORD_INCORRECT);
+    }
+
+    // Yangi password eski password bilan bir xil bo'lishini tekshirish
+    const isSamePassword = await this.authService.comparePassword(
+      input.newPassword,
+      user.password,
+    );
+
+    if (isSamePassword) {
+      throw new BadRequestException(Message.NEW_PASSWORD_SAME_AS_OLD);
+    }
+
+    // Yangi passwordni hash qilamiz
+    user.password = await this.authService.hashPassword(input.newPassword);
+    console.log('Password yangilandi');
+  }
+
+  private updateOtherFields(user: User, input: UpdateUserDto): void {
     const { currentPassword, newPassword, email, ...otherFields } = input;
 
     if (Object.keys(otherFields).length > 0) {
       console.log('Boshqa fieldlar yangilanmoqda:', Object.keys(otherFields));
       Object.assign(user, otherFields);
     }
+  }
 
+  private async saveUpdatedUser(user: User): Promise<User> {
     try {
       console.log('user token', user.token);
       const updatedUser = await this.userRepository.save(user);
@@ -200,31 +235,44 @@ export class UserService {
       console.error('Update error:', error);
 
       if (error.code === '23505') {
-
         throw new BadRequestException(Message.EMAIL_ALREADY_EXISTS);
       }
 
       throw new InternalServerErrorException(
-        error.message || 'Failed to update user',
+        error.message || Message.UPDATE_USER_FAILED,
       );
     }
   }
 
   async getAllUsers(): Promise<User[]> {
     return await this.userRepository.find({
-      select: ['id', 'fullName', 'email', 'phone', 'position', 'role', 'avatar'],
+      select: [
+        'id',
+        'fullName',
+        'email',
+        'phone',
+        'position',
+        'role',
+        'avatar',
+      ],
     });
   }
 
-  async uploadAvatar(file: Express.Multer.File, userId: string): Promise<string> {
+  async uploadAvatar(
+    file: Express.Multer.File,
+    userId: string,
+  ): Promise<string> {
+    if (!file) {
+      throw new BadRequestException(Message.FILE_REQUIRED);
+    }
+
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new BadRequestException(Message.NO_DATA_FOUND);
     }
+
     user.avatar = file.path;
     await this.userRepository.save(user);
     return user.avatar;
   }
-  
-
 }

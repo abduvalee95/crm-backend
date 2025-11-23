@@ -1,16 +1,27 @@
-import { Body, Controller, Get, Post, Put, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerConfig } from 'src/libs/config/multer.conf';
 import { LoginDto } from 'src/libs/dto/auth/login.dto';
 import { UpdateUserDto } from 'src/libs/dto/user/update-user.dto';
+import { UserRole } from 'src/libs/enums/user.enums';
 import { CreateUserDto } from '../../libs/dto/user/create-user.dto';
 import { User } from '../../libs/entities/user';
+import { Message } from '../../libs/enums/common.enums';
 import { CurrentUser } from '../auth/decorator/current.decorator';
+import { Roles } from '../auth/decorator/roles.decorator';
 import { AuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guards';
 import { UserService } from './user.service';
-import { RolesGuard } from '../auth/guards/roles.guards'
-import { Roles } from '../auth/decorator/roles.decorator'
-import { UserRole } from 'src/libs/enums/user.enums'
-import { FileInterceptor } from '@nestjs/platform-express'
-import { multerConfig } from 'src/libs/config/multer.conf'
 
 @Controller('user')
 export class UserController {
@@ -18,20 +29,20 @@ export class UserController {
 
   @Post('signup')
   async signUp(@Body() input: CreateUserDto): Promise<User> {
-    console.log('Signup', input);
+    console.log('=== Signup Request ===');
     return await this.userService.signUp(input);
   }
 
   @Post('login')
   async login(@Body() input: LoginDto): Promise<User> {
-    console.log('Login', input);
+    console.log('=== Login Request ===');
     return await this.userService.login(input);
   }
 
   @Get('checkAuth')
   @UseGuards(AuthGuard)
   async checkAuth(@CurrentUser() user: User): Promise<User> {
-    console.log('CheckAuthq', user);
+    console.log('=== CheckAuth Request ===');
     return user;
   }
 
@@ -59,10 +70,17 @@ export class UserController {
   @Post('upload-avatar')
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('avatar', multerConfig))
-  async uploadAvatar(@UploadedFile() file: Express.Multer.File, @CurrentUser() user: User): Promise<string> {
-    console.log('Upload Avatar', file);
+  async uploadAvatar(
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: User,
+  ): Promise<string> {
+    console.log('=== Upload Avatar Request ===');
     console.log('User', user);
+
+    if (!file) {
+      throw new BadRequestException(Message.FILE_NOT_PROVIDED);
+    }
+
     return await this.userService.uploadAvatar(file, user.id);
   }
-  
 }
