@@ -43,7 +43,9 @@ export class UserController {
   @UseGuards(AuthGuard)
   async checkAuth(@CurrentUser() user: User): Promise<User> {
     console.log('=== CheckAuth Request ===');
-    return user;
+    // Tokendagi ma'lumotlar to'liq emas (phone, position yo'q),
+    // shuning uchun to'liq profilni bazadan olamiz.
+    return await this.userService.getUserById(user.id);
   }
 
   @Put('update')

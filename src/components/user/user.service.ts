@@ -128,6 +128,29 @@ export class UserService {
     return await this.saveUpdatedUser(user);
   }
 
+  public async getUserById(id: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      select: [
+        'id',
+        'email',
+        'fullName',
+        'role',
+        'avatar',
+        'phone',
+        'position',
+        'createdAt',
+        'updatedAt',
+      ],
+    });
+
+    if (!user) {
+      throw new BadRequestException(Message.NO_DATA_FOUND);
+    }
+
+    return user;
+  }
+
   private async getUserWithPassword(userId: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
