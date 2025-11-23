@@ -9,6 +9,7 @@ import { Message } from '../libs/entities/message';
 import { Notification } from '../libs/entities/notification';
 import { Task } from '../libs/entities/task';
 import { User } from '../libs/entities/user';
+import { TelegramSettings } from 'src/libs/entities/telegramm'
 
 export default registerAs(
   'database',
@@ -28,6 +29,7 @@ export default registerAs(
       Message,
       Notification,
       ActivityLog,
+      TelegramSettings,
     ],
     synchronize: process.env.NODE_ENV !== 'production',
     logging: process.env.NODE_ENV === 'development',

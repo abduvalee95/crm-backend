@@ -5,18 +5,17 @@ import { AppService } from './app.service';
 import { ComponentsModule } from './components/components.module';
 import databaseConfig from './database/database.config';
 import { DatabaseModule } from './database/database.module';
-import { UserModule } from './components/user/user.module'
+import telegramConfig from './libs/config/telegram.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig],
+      load: [databaseConfig, telegramConfig],
       envFilePath: '.env',
     }),
     DatabaseModule,
     ComponentsModule,
-    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

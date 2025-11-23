@@ -58,6 +58,24 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Telegram Integration
+
+1. Create a bot with `@BotFather`, copy the bot token and invite the bot to the chat/channel you want to receive alerts in. Grab the chat ID via `getUpdates` or any Telegram helper bot.
+2. Add the following variables to your `.env` file (restart the API afterwards):
+
+| Variable | Description |
+| --- | --- |
+| `TELEGRAM_BOT_TOKEN` | Token returned by `@BotFather`. |
+| `TELEGRAM_DEFAULT_CHAT_ID` | Chat/group/channel ID that should receive CRM notifications by default. |
+| `TELEGRAM_ENABLED` | Optional flag (`true`/`false`). Set to `false` to mute Telegram without removing credentials. |
+
+3. The backend will now:
+   - Send rich notifications every time an admin creates a new client.
+   - Send deal creation alerts (title, amount, client, assignee, stage).
+   - Inform the team whenever a deal moves to a new stage.
+
+You can inject `TelegramService` in any other module to reuse the `sendMessage` helper for custom workflows or specify alternative chat IDs per notification.
+
 ## Support
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).

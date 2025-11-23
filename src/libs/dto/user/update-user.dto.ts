@@ -10,6 +10,10 @@ import { UserRole } from '../../enums/user.enums';
 export class UpdateUserDto {
   @IsString()
   @IsOptional()
+  id?: string;
+
+  @IsString()
+  @IsOptional()
   fullName?: string;
 
   @IsEmail()
@@ -17,11 +21,36 @@ export class UpdateUserDto {
   email?: string;
 
   @IsString()
-  @MinLength(6)
   @IsOptional()
-  password?: string;
+  phone?: string;
+
+  @IsString()
+  @IsOptional()
+  avatar?: string;
+
+  @IsString()
+  @IsOptional()
+  position?: string;
 
   @IsEnum(UserRole)
   @IsOptional()
   role?: UserRole;
+
+  @IsString()
+  @IsOptional()
+  token?: string;
+
+  @IsOptional()
+  @IsString()
+  password?: string;
+
+  // Password update fields
+  @IsString()
+  @IsOptional()
+  currentPassword?: string;
+
+  @IsString()
+  @MinLength(6)
+  @IsOptional()
+  newPassword?: string;
 }
