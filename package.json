@@ -30,11 +30,15 @@
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^10.0.0",
     "@nestjs/jwt": "^11.0.1",
+    "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-ws": "^10.4.20",
     "@nestjs/typeorm": "^11.0.0",
     "@types/axios": "^0.14.4",
     "@types/multer": "^2.0.0",
+    "@types/websocket": "^1.0.10",
+    "@types/ws": "^8.18.1",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
@@ -48,7 +52,11 @@
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.27"
+    "socket-io": "^1.0.0",
+    "typeorm": "^0.3.27",
+    "websocket": "^1.0.35",
+    "websockets": "^0.2.0",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

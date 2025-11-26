@@ -1,7 +1,6 @@
-export enum DealStatus {
-  NEW = 'new',
-  NEGOTIATION = 'negotiation',
-  WON = 'won',
-  LOST = 'lost',
-  CANCELLED = 'cancelled',
-}
+
+  export enum DealStage {
+    New = 'Новый',
+    InProgress = 'В работе',
+    Closed = 'Закрыт',
+  }

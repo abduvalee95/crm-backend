@@ -183,11 +183,11 @@ export class UserService {
 
     // Agar email o'zgarmasa, hech narsa qilmaymiz
     if (newEmail === user.email) {
-      console.log("Email o'zgarmadi, skip qilamiz");
+      console.log("Email is not changed, skip");
       return;
     }
 
-    console.log("Email o'zgartirilmoqda:", user.email, '->', newEmail);
+    console.log("Email is being updated:", user.email, '->', newEmail);
 
     // Yangi email allaqachon mavjudligini tekshiramiz
     const existingUser = await this.userRepository.findOne({
@@ -233,14 +233,14 @@ export class UserService {
 
     // Yangi passwordni hash qilamiz
     user.password = await this.authService.hashPassword(input.newPassword);
-    console.log('Password yangilandi');
+    console.log('Password updated');
   }
 
   private updateOtherFields(user: User, input: UpdateUserDto): void {
     const { currentPassword, newPassword, email, ...otherFields } = input;
 
     if (Object.keys(otherFields).length > 0) {
-      console.log('Boshqa fieldlar yangilanmoqda:', Object.keys(otherFields));
+      console.log('Other fields updated:', Object.keys(otherFields));
       Object.assign(user, otherFields);
     }
   }
@@ -249,7 +249,7 @@ export class UserService {
     try {
       console.log('user token', user.token);
       const updatedUser = await this.userRepository.save(user);
-      console.log('User muvaffaqiyatli yangilandi');
+      console.log('User successfully updated');
 
       delete updatedUser.password;
       updatedUser.token = await this.authService.createToken(updatedUser);

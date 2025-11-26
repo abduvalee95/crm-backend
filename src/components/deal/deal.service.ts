@@ -12,6 +12,7 @@ import { Deal } from '../../libs/entities/deal';
 import { User } from '../../libs/entities/user';
 import { Message } from '../../libs/enums/common.enums';
 import { DealStage } from '../../libs/enums/deal-stage.enum';
+import { UserRole } from '../../libs/enums/user.enums';
 import { TelegramService } from '../telegram/telegram.service';
 
 @Injectable()
@@ -95,9 +96,17 @@ export class DealService {
     }
   }
 
-  async getAllDeals(userId: string): Promise<Deal[]> {
+  async getAllDeals(userId: string, userRole: UserRole): Promise<Deal[]> {
     try {
-      // Faqat user assigned qilingan deal'larni qaytarish
+      // Agar user ADMIN bo'lsa, barcha deal'larni qaytarish
+      if (userRole === UserRole.ADMIN) {
+        return await this.dealRepository.find({
+          relations: ['client', 'assignedTo'],
+          order: { createdAt: 'DESC' }, // Eng yangi deal'lar birinchi
+        });
+      }
+
+      // Aks holda faqat user assigned qilingan deal'larni qaytarish
       return await this.dealRepository.find({
         where: { assignedToId: userId },
         relations: ['client', 'assignedTo'],
@@ -204,10 +213,16 @@ export class DealService {
       if (input.stage && input.stage !== deal.stage) {
         previousStage = deal.stage;
         deal.stage = input.stage;
+        if (input.stage === DealStage.Closed) {
+          deal.amount = +deal.amount;
+          console.log(
+            `Deal closed: Amount reduced by  New amount: ${deal.amount}`,
+          );
+        }
       }
 
       const updatedDeal = await this.dealRepository.save(deal);
-      console.log('Deal muvaffaqiyatli yangilandi');
+      console.log('changed');
 
       // Relations bilan qaytarish
       const result = await this.dealRepository.findOne({
@@ -215,12 +230,12 @@ export class DealService {
         relations: ['client', 'assignedTo'],
       });
 
-      // if (previousStage && result) {
-      //   // await this.telegramService.notifyDealStageChanged(
-      //     result,
-      //     previousStage,
-      //   );
-      // }
+      if (previousStage && result) {
+        await this.telegramService.notifyDealStageChanged(
+          result,
+          previousStage,
+        );
+      }
 
       return result;
     } catch (error) {
@@ -267,7 +282,7 @@ export class DealService {
 
       // 2. Deal'ni o'chirish
       await this.dealRepository.remove(deal);
-      console.log("Dealochirildi");
+      console.log('Dealochirildi');
 
       return {
         message: 'Deal successfully deleted',

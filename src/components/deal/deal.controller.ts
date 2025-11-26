@@ -44,7 +44,8 @@ export class DealController {
   async getAllDeals(@CurrentUser() user: User): Promise<Deal[]> {
     console.log('=== Get All Deals Request ===');
     console.log('User ID:', user.id);
-    return await this.dealService.getAllDeals(user.id);
+    console.log('User Role:', user.role);
+    return await this.dealService.getAllDeals(user.id, user.role);
   }
 
   @Get('get/:id')

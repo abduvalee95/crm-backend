@@ -9,6 +9,7 @@ import { CreateClientDto } from '../../libs/dto/client/create-client.dto';
 import { Client } from '../../libs/entities/client';
 import { ClientStatus } from '../../libs/enums/client-status.enum';
 import { Message } from '../../libs/enums/common.enums';
+import { UserRole } from '../../libs/enums/user.enums';
 import { TelegramService } from '../telegram/telegram.service';
 
 @Injectable()
@@ -71,9 +72,16 @@ export class ClientService {
     }
   }
 
-  async getAllClients(userId: string): Promise<Client[]> {
+  async getAllClients(userId: string, userRole: UserRole): Promise<Client[]> {
     try {
-      // Faqat user yaratgan clientlarni qaytarish
+      // Agar user ADMIN bo'lsa, barcha clientlarni qaytarish
+      if (userRole === UserRole.ADMIN) {
+        return await this.clientRepository.find({
+          order: { createdAt: 'DESC' }, // Eng yangi clientlar birinchi
+        });
+      }
+
+      // Aks holda faqat user yaratgan clientlarni qaytarish
       return await this.clientRepository.find({
         where: { createdById: userId },
         order: { createdAt: 'DESC' }, // Eng yangi clientlar birinchi

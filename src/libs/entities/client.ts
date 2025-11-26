@@ -14,7 +14,7 @@ import { User } from './user';
 
 @Entity('clients')
 export class Client {
-  @PrimaryGeneratedColumn('uuid') 
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
@@ -34,7 +34,7 @@ export class Client {
   @Column({
     type: 'enum',
     enum: ClientStatus,
-    default: ClientStatus.new
+    default: ClientStatus.new,
   })
   status: ClientStatus;
 
@@ -43,14 +43,13 @@ export class Client {
     onDelete: 'SET NULL',
     nullable: true,
   })
-
   @JoinColumn({ name: 'created_by' })
   createdBy: User;
 
   @Column({ name: 'created_by', nullable: true })
   createdById: string;
 
-  // bu erda deals client tomonidan qoshiladi 
+  // bu erda deals client tomonidan qoshiladi
   @OneToMany(() => Deal, (deal) => deal.client)
   deals: Deal[];
 

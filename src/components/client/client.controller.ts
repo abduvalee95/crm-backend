@@ -24,7 +24,7 @@ export class ClientController {
 
   @Post('create')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
   async createClient(
     @Body() input: CreateClientDto,
     @CurrentUser() user: User,
@@ -41,7 +41,8 @@ export class ClientController {
   async getAllClients(@CurrentUser() user: User): Promise<Client[]> {
     console.log('=== Get All Clients Request ===');
     console.log('User ID:', user.id);
-    return await this.clientService.getAllClients(user.id);
+    console.log('User Role:', user.role);
+    return await this.clientService.getAllClients(user.id, user.role);
   }
   @Get('get/:id')
   @UseGuards(AuthGuard) // ← JWT token tekshirish

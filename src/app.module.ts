@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { ComponentsModule } from './components/components.module';
 import databaseConfig from './database/database.config';
 import { DatabaseModule } from './database/database.module';
+import { SocketModule } from './socket/socket.module';
 import telegramConfig from './libs/config/telegram.config';
 
 @Module({
@@ -16,6 +17,7 @@ import telegramConfig from './libs/config/telegram.config';
     }),
     DatabaseModule,
     ComponentsModule,
+    SocketModule,
   ],
   controllers: [AppController],
   providers: [AppService],
