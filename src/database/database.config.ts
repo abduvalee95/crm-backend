@@ -1,15 +1,17 @@
 import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { join } from 'path';
+import { TelegramSettings } from 'src/libs/entities/telegramm';
 import { ActivityLog } from '../libs/entities/activity-log';
 import { Client } from '../libs/entities/client';
 import { Deal } from '../libs/entities/deal';
 import { Employee } from '../libs/entities/employee';
 import { Message } from '../libs/entities/message';
 import { Notification } from '../libs/entities/notification';
+import { NotificationSettings } from '../libs/entities/notification-settings';
+import { SecuritySettings } from '../libs/entities/security-settings';
 import { Task } from '../libs/entities/task';
 import { User } from '../libs/entities/user';
-import { TelegramSettings } from 'src/libs/entities/telegramm'
 
 export default registerAs(
   'database',
@@ -28,6 +30,8 @@ export default registerAs(
       Employee,
       Message,
       Notification,
+      NotificationSettings,
+      SecuritySettings,
       ActivityLog,
       TelegramSettings,
     ],

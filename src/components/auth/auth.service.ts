@@ -20,7 +20,6 @@ export class AuthService {
   }
 
   public async createToken(user: User): Promise<string> {
-    console.log('token', user);
     const payload = {
       id: user.id,
       fullName: user.fullName,
@@ -28,7 +27,6 @@ export class AuthService {
       role: user.role,
       avatar: user.avatar,
     };
-    console.log('payload', payload);
 
     return await this.jwtService.signAsync(payload);
   }

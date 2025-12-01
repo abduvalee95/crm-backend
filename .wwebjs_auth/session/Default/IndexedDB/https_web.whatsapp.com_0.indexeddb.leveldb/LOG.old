@@ -1,0 +1,29 @@
+2025/12/01-15:18:15.420 aa03 Reusing MANIFEST /Users/leo/Desktop/crm-backend/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/12/01-15:18:15.420 aa03 Recovering log #847
+2025/12/01-15:18:15.486 aa03 Reusing old log /Users/leo/Desktop/crm-backend/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000847.log 
+2025/12/01-15:18:17.977 21203 Level-0 table #860: started
+2025/12/01-15:18:17.995 21203 Level-0 table #860: 821758 bytes OK
+2025/12/01-15:18:18.008 21203 Delete type=0 #847
+2025/12/01-15:18:18.010 21203 Manual compaction at level-0 from '\x00S\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00T\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/12/01-15:18:20.674 e503 Compacting 1@1 + 9@2 files
+2025/12/01-15:18:20.778 e503 Generated table #861@1: 87098 keys, 2236773 bytes
+2025/12/01-15:18:20.852 e503 Generated table #862@1: 59099 keys, 2258621 bytes
+2025/12/01-15:18:20.882 e503 Generated table #863@1: 8042 keys, 2148233 bytes
+2025/12/01-15:18:20.907 e503 Generated table #864@1: 1435 keys, 2146184 bytes
+2025/12/01-15:18:20.930 e503 Generated table #865@1: 2051 keys, 2144253 bytes
+2025/12/01-15:18:21.001 e503 Generated table #866@1: 31843 keys, 2257225 bytes
+2025/12/01-15:18:21.030 e503 Generated table #867@1: 6584 keys, 2129654 bytes
+2025/12/01-15:18:21.139 e503 Generated table #868@1: 96750 keys, 2246657 bytes
+2025/12/01-15:18:21.166 e503 Generated table #869@1: 21211 keys, 571454 bytes
+2025/12/01-15:18:21.166 e503 Compacted 1@1 + 9@2 files => 18139054 bytes
+2025/12/01-15:18:21.173 e503 compacted to: files[ 0 0 9 0 0 0 0 ]
+2025/12/01-15:18:21.173 e503 Delete type=2 #857
+2025/12/01-15:18:21.173 e503 Delete type=2 #856
+2025/12/01-15:18:21.173 e503 Delete type=2 #854
+2025/12/01-15:18:21.173 e503 Delete type=2 #855
+2025/12/01-15:18:21.174 e503 Delete type=2 #851
+2025/12/01-15:18:21.174 e503 Delete type=2 #850
+2025/12/01-15:18:21.174 e503 Delete type=2 #852
+2025/12/01-15:18:21.174 e503 Delete type=2 #853
+2025/12/01-15:18:21.174 e503 Delete type=2 #849
+2025/12/01-15:18:21.174 e503 Delete type=2 #860

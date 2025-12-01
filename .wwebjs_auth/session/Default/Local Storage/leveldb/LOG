@@ -1,0 +1,6 @@
+2025/12/01-15:50:52.474 c503 Reusing MANIFEST /Users/leo/Desktop/crm-backend/.wwebjs_auth/session/Default/Local Storage/leveldb/MANIFEST-000001
+2025/12/01-15:50:52.476 c503 Recovering log #19
+2025/12/01-15:50:52.477 c503 Reusing old log /Users/leo/Desktop/crm-backend/.wwebjs_auth/session/Default/Local Storage/leveldb/000019.log 
+2025/12/01-15:51:54.197 24203 Level-0 table #24: started
+2025/12/01-15:51:54.211 24203 Level-0 table #24: 14551 bytes OK
+2025/12/01-15:51:54.222 24203 Delete type=0 #19

@@ -25,7 +25,6 @@ export class UserService {
     input.password = await this.authService.hashPassword(input.password);
 
     try {
-      console.log('Service input:', input);
       // Emailni tekshiramiz
       const existingUser = await this.userRepository.findOne({
         where: { email: input.email },
@@ -33,7 +32,7 @@ export class UserService {
       if (existingUser) {
         throw new BadRequestException(Message.EMAIL_ALREADY_EXISTS);
       }
-      console.log('Password hashed successfully');
+
       // User inputdan
       const user = await this.userRepository.create(input);
       const savedUser = await this.userRepository.save(user);
@@ -68,7 +67,6 @@ export class UserService {
 
   // login service
   public async login(input: LoginDto): Promise<User> {
-    console.log('login service');
     const { email, password } = input;
 
     const response: User = await this.userRepository.findOne({
@@ -87,27 +85,21 @@ export class UserService {
     if (!response) {
       throw new BadRequestException(Message.EMAIL_OR_PASSWORD_INCORRECT);
     }
-    // bu erga statuus qilamiz delete or block
-    console.log('before isMatchresponse', response);
+
     const isMatch = await this.authService.comparePassword(
       password,
       response?.password,
     );
-    console.log('isMatch', isMatch);
+
     if (!isMatch) {
       throw new UnauthorizedException(Message.WRONG_PASSWORD);
     }
-    console.log('after response', response);
+
     response.token = await this.authService.createToken(response);
-    console.log('response tokwn', response.token);
     return response;
   }
 
   public async updateUser(input: UpdateUserDto, userId: string): Promise<User> {
-    console.log('=== Update User Service ===');
-    console.log('Input:', input);
-    console.log('User ID:', userId);
-
     // 1. Database dan TO'LIQ user ma'lumotlarini olamiz (password bilan)
     const user = await this.getUserWithPassword(userId);
 
@@ -183,11 +175,8 @@ export class UserService {
 
     // Agar email o'zgarmasa, hech narsa qilmaymiz
     if (newEmail === user.email) {
-      console.log("Email is not changed, skip");
       return;
     }
-
-    console.log("Email is being updated:", user.email, '->', newEmail);
 
     // Yangi email allaqachon mavjudligini tekshiramiz
     const existingUser = await this.userRepository.findOne({
@@ -233,27 +222,27 @@ export class UserService {
 
     // Yangi passwordni hash qilamiz
     user.password = await this.authService.hashPassword(input.newPassword);
-    console.log('Password updated');
   }
 
   private updateOtherFields(user: User, input: UpdateUserDto): void {
     const { currentPassword, newPassword, email, ...otherFields } = input;
 
     if (Object.keys(otherFields).length > 0) {
-      console.log('Other fields updated:', Object.keys(otherFields));
       Object.assign(user, otherFields);
     }
   }
 
   private async saveUpdatedUser(user: User): Promise<User> {
     try {
-      console.log('user token', user.token);
       const updatedUser = await this.userRepository.save(user);
-      console.log('User successfully updated');
 
-      delete updatedUser.password;
-      updatedUser.token = await this.authService.createToken(updatedUser);
-      return updatedUser;
+      // Passwordni response dan olib tashlash
+      const { password, ...result } = updatedUser;
+      
+      // Tokenni yangilash (ixtiyoriy, agar token user ma'lumotlariga bog'liq bo'lsa)
+      const token = await this.authService.createToken(updatedUser);
+      
+      return { ...result, token } as User;
     } catch (error) {
       console.error('Update error:', error);
 

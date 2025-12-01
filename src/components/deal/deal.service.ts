@@ -1,7 +1,9 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   InternalServerErrorException,
+  Optional,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -13,6 +15,7 @@ import { User } from '../../libs/entities/user';
 import { Message } from '../../libs/enums/common.enums';
 import { DealStage } from '../../libs/enums/deal-stage.enum';
 import { UserRole } from '../../libs/enums/user.enums';
+import { SocketService } from '../../socket/socket.service';
 import { TelegramService } from '../telegram/telegram.service';
 
 @Injectable()
@@ -25,16 +28,15 @@ export class DealService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly telegramService: TelegramService,
+    @Optional()
+    @Inject(SocketService)
+    private readonly socketService?: SocketService,
   ) {}
 
   public async createDeal(
     input: CreateDealDto,
     createdById: string,
   ): Promise<Deal> {
-    console.log('=== Create Deal Service ===');
-    console.log('Input:', input);
-    console.log('Created by:', createdById);
-
     try {
       // 1. Client ni tekshirish
       const client = await this.clientRepository.findOne({
@@ -77,6 +79,19 @@ export class DealService {
         clientName: client.name,
         assignedTo: assigneeName,
       });
+
+      // Socket event yuborish
+      if (this.socketService) {
+        this.socketService.broadcastDealCreated({
+          id: savedDeal.id,
+          title: savedDeal.title,
+          stage: savedDeal.stage,
+          amount: Number(savedDeal.amount),
+          clientId: savedDeal.clientId,
+          assignedToId: savedDeal.assignedToId,
+          updatedBy: createdById,
+        });
+      }
 
       return savedDeal;
     } catch (error) {
@@ -159,11 +174,6 @@ export class DealService {
     input: UpdateDealDto,
     userId: string,
   ): Promise<Deal> {
-    console.log('=== Update Deal Service ===');
-    console.log('Deal ID:', id);
-    console.log('Input:', input);
-    console.log('User ID:', userId);
-
     try {
       // 1. Deal ni topish va user assigned ekanligini tekshirish
       const deal = await this.dealRepository.findOne({
@@ -213,16 +223,9 @@ export class DealService {
       if (input.stage && input.stage !== deal.stage) {
         previousStage = deal.stage;
         deal.stage = input.stage;
-        if (input.stage === DealStage.Closed) {
-          deal.amount = +deal.amount;
-          console.log(
-            `Deal closed: Amount reduced by  New amount: ${deal.amount}`,
-          );
-        }
       }
 
       const updatedDeal = await this.dealRepository.save(deal);
-      console.log('changed');
 
       // Relations bilan qaytarish
       const result = await this.dealRepository.findOne({
@@ -235,6 +238,19 @@ export class DealService {
           result,
           previousStage,
         );
+      }
+
+      // Socket event yuborish
+      if (this.socketService) {
+        this.socketService.broadcastDealUpdate({
+          id: result.id,
+          title: result.title,
+          stage: result.stage,
+          amount: Number(result.amount),
+          clientId: result.clientId,
+          assignedToId: result.assignedToId,
+          updatedBy: userId,
+        });
       }
 
       return result;
@@ -265,10 +281,6 @@ export class DealService {
     message: string;
     deletedDeal: Deal;
   }> {
-    console.log('=== Delete Deal Service ===');
-    console.log('Deal ID:', id);
-    console.log('User ID:', userId);
-
     try {
       // 1. Deal ni topish
       const deal = await this.dealRepository.findOne({
@@ -282,7 +294,19 @@ export class DealService {
 
       // 2. Deal'ni o'chirish
       await this.dealRepository.remove(deal);
-      console.log('Dealochirildi');
+
+      // Socket event yuborish
+      if (this.socketService) {
+        this.socketService.broadcastDealUpdate({
+          id: deal.id,
+          title: deal.title,
+          stage: deal.stage,
+          amount: Number(deal.amount),
+          clientId: deal.clientId,
+          assignedToId: deal.assignedToId,
+          updatedBy: userId,
+        });
+      }
 
       return {
         message: 'Deal successfully deleted',

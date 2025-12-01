@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UpdateClientDto } from 'src/libs/dto/client/update-client.dto';
 import { Repository } from 'typeorm';
 import { CreateClientDto } from '../../libs/dto/client/create-client.dto';
 import { Client } from '../../libs/entities/client';
@@ -24,10 +25,6 @@ export class ClientService {
     input: CreateClientDto,
     createdById: string,
   ): Promise<Client> {
-    console.log('=== Create Client Service ===');
-    console.log('Input:', input);
-    console.log('Created by Admin ID:', createdById);
-
     try {
       // Email chek
       const existingClient = await this.clientRepository.findOne({
@@ -49,7 +46,6 @@ export class ClientService {
       });
 
       const savedClient = await this.clientRepository.save(client);
-      console.log('Client:', savedClient.id);
 
       await this.telegramService.notifyClientCreated(savedClient);
 
@@ -124,6 +120,68 @@ export class ClientService {
       throw new InternalServerErrorException(
         error.message || Message.SOMETHING_WENT_WRONG,
       );
+    }
+  }
+  async updateClient(
+    id: string,
+    input: UpdateClientDto,
+    userId: string,
+  ): Promise<Client> {
+    try {
+      const client = await this.clientRepository.findOne({
+        where: { id, createdById: userId },
+      });
+      if (!client) {
+        throw new BadRequestException(
+          'Client not found or you do not have permission to update this client',
+        );
+      }
+      client.name = input.name;
+      client.phone = input.phone;
+      client.email = input.email;
+      client.company = input.company;
+      client.status = input.status;
+      // client.notes = input.notes;
+      return await this.clientRepository.save(client);
+    } catch (error) {
+      console.error('Update Client error:', error);
+      throw new InternalServerErrorException(
+        error.message || Message.UPDATE_FALED,
+      );
+    }
+  }
+
+  async deleteClient(
+    id: string,
+    userId: string,
+    userRole: UserRole,
+  ): Promise<void> {
+    try {
+      const where =
+        userRole === UserRole.ADMIN ? { id } : { id, createdById: userId };
+
+      const client = await this.clientRepository.findOne({ where });
+
+      if (!client) {
+        throw new BadRequestException(
+          'Client not found or you do not have permission to delete this client',
+        );
+      }
+
+      await this.clientRepository.remove(client);
+    } catch (error) {
+      console.error('Delete Client error:', error);
+
+      if (error instanceof BadRequestException) throw error;
+
+      if (error.code === '23503') {
+        // Foreign key violation
+        throw new BadRequestException(
+          'Cannot delete client because they have related records (deals, tasks)',
+        );
+      }
+
+      throw new InternalServerErrorException(Message.REMOVE_FAILED);
     }
   }
 }

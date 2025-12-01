@@ -32,19 +32,12 @@ export class DealController {
     @Body() input: CreateDealDto,
     @CurrentUser() user: User,
   ): Promise<Deal> {
-    console.log('=== Create Deal Request ===');
-    console.log('Request body:', input);
-    console.log('Created by:', user.id, user.role);
-
     return await this.dealService.createDeal(input, user.id);
   }
 
   @Get('all')
   @UseGuards(AuthGuard)
   async getAllDeals(@CurrentUser() user: User): Promise<Deal[]> {
-    console.log('=== Get All Deals Request ===');
-    console.log('User ID:', user.id);
-    console.log('User Role:', user.role);
     return await this.dealService.getAllDeals(user.id, user.role);
   }
 
@@ -64,9 +57,6 @@ export class DealController {
     id: string,
     @CurrentUser() user: User,
   ): Promise<Deal> {
-    console.log('=== Get Deal By Id Request ===');
-    console.log('Deal ID:', id);
-    console.log('User ID:', user.id);
     return await this.dealService.getDealById(user.id, id);
   }
 
@@ -87,10 +77,6 @@ export class DealController {
     @Body() input: UpdateDealDto,
     @CurrentUser() user: User,
   ): Promise<Deal> {
-    console.log('=== Update Deal Request ===');
-    console.log('Deal ID:', id);
-    console.log('Request body:', input);
-    console.log('User ID:', user.id);
     return await this.dealService.updateDeal(id, input, user.id);
   }
 
@@ -111,10 +97,6 @@ export class DealController {
     id: string,
     @CurrentUser() user: User,
   ): Promise<{ message: string; deletedDeal: Deal }> {
-    console.log('=== Delete Deal Request ===');
-    console.log('Deal ID:', id);
-    console.log('User ID:', user.id);
-    console.log('User Role:', user.role);
     return await this.dealService.deleteDeal(id, user.id);
   }
 }

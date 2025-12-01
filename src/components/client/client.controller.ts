@@ -2,12 +2,15 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
+import { UpdateClientDto } from 'src/libs/dto/client/update-client.dto';
 import { CreateClientDto } from '../../libs/dto/client/create-client.dto';
 import { Client } from '../../libs/entities/client';
 import { User } from '../../libs/entities/user';
@@ -29,19 +32,12 @@ export class ClientController {
     @Body() input: CreateClientDto,
     @CurrentUser() user: User,
   ): Promise<Client> {
-    console.log('=== Create Client Request ===');
-    console.log('Request body:', input);
-    console.log('Created by Admin:', user.id, user.role);
-
     return await this.clientService.createClient(input, user.id);
   }
 
   @Get('all')
   @UseGuards(AuthGuard) // Faqat autentifikatsiya qilingan userlar
   async getAllClients(@CurrentUser() user: User): Promise<Client[]> {
-    console.log('=== Get All Clients Request ===');
-    console.log('User ID:', user.id);
-    console.log('User Role:', user.role);
     return await this.clientService.getAllClients(user.id, user.role);
   }
   @Get('get/:id')
@@ -60,9 +56,25 @@ export class ClientController {
     id: string, // ← URL parametridan id olish
     @CurrentUser() user: User, // ← Autentifikatsiya qilingan user
   ): Promise<Client> {
-    console.log('=== Get Client By Id Request ===');
-    console.log('Client ID:', id);
-    console.log('User ID:', user.id);
     return await this.clientService.getClientById(user.id, id);
+  }
+  @Put('update/:id')
+  @UseGuards(AuthGuard)
+  async updateClient(
+    @Param('id') id: string,
+    @Body() input: UpdateClientDto,
+    @CurrentUser() user: User,
+  ): Promise<Client> {
+    return await this.clientService.updateClient(id, input, user.id);
+  }
+
+  @Delete('delete/:id')
+  @UseGuards(AuthGuard)
+  async deleteClient(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: User,
+  ): Promise<{ message: string }> {
+    await this.clientService.deleteClient(id, user.id, user.role);
+    return { message: 'Client successfully deleted' };
   }
 }

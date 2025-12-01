@@ -1,0 +1,19 @@
+2025/12/01-15:50:54.034 aa03 Reusing MANIFEST /Users/leo/Desktop/crm-backend/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/12/01-15:50:54.035 aa03 Recovering log #859
+2025/12/01-15:50:54.317 aa03 Reusing old log /Users/leo/Desktop/crm-backend/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000859.log 
+2025/12/01-15:50:57.060 22303 Level-0 table #872: started
+2025/12/01-15:50:57.084 22303 Level-0 table #872: 943140 bytes OK
+2025/12/01-15:50:57.096 22303 Delete type=0 #859
+2025/12/01-15:50:57.098 22303 Manual compaction at level-0 from '\x00T\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00U\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/12/01-15:51:00.926 23003 Compacting 1@1 + 9@2 files
+2025/12/01-15:51:01.103 23003 Generated table #873@1: 87520 keys, 2237301 bytes
+2025/12/01-15:51:01.322 23003 Generated table #874@1: 60332 keys, 2255780 bytes
+2025/12/01-15:51:01.365 23003 Generated table #875@1: 9601 keys, 2165158 bytes
+2025/12/01-15:51:01.400 23003 Generated table #876@1: 1434 keys, 2144178 bytes
+2025/12/01-15:51:01.431 23003 Generated table #877@1: 2016 keys, 2146109 bytes
+2025/12/01-15:51:01.522 23003 Generated table #878@1: 31083 keys, 2255492 bytes
+2025/12/01-15:51:01.553 23003 Generated table #879@1: 6536 keys, 2132780 bytes
+2025/12/01-15:51:01.654 23003 Generated table #880@1: 96116 keys, 2248147 bytes
+2025/12/01-15:51:01.680 23003 Generated table #881@1: 22765 keys, 607867 bytes
+2025/12/01-15:51:01.680 23003 Compacted 1@1 + 9@2 files => 18192812 bytes
+2025/12/01-15:51:01.690 23003 compacted to: files[ 0 0 9 0 0 0 0 ]

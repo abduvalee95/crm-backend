@@ -29,21 +29,17 @@ export class UserController {
 
   @Post('signup')
   async signUp(@Body() input: CreateUserDto): Promise<User> {
-    console.log('=== Signup Request ===');
     return await this.userService.signUp(input);
   }
 
   @Post('login')
   async login(@Body() input: LoginDto): Promise<User> {
-    console.log('=== Login Request ===');
     return await this.userService.login(input);
   }
 
   @Get('checkAuth')
   @UseGuards(AuthGuard)
   async checkAuth(@CurrentUser() user: User): Promise<User> {
-    console.log('=== CheckAuth Request ===');
-
     return await this.userService.getUserById(user.id);
   }
 
@@ -53,10 +49,6 @@ export class UserController {
     @Body() input: UpdateUserDto,
     @CurrentUser() user: User,
   ): Promise<User> {
-    console.log('=== Update User Request ===');
-    console.log('Request body:', input);
-    console.log('Authenticated user ID:', user.id);
-
     return await this.userService.updateUser(input, user.id);
   }
 
@@ -64,7 +56,6 @@ export class UserController {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
   async getAllUsers(): Promise<User[]> {
-    console.log(' All Users Request ===');
     return await this.userService.getAllUsers();
   }
 
@@ -75,9 +66,6 @@ export class UserController {
     @UploadedFile() file: Express.Multer.File,
     @CurrentUser() user: User,
   ): Promise<string> {
-    console.log('=== Upload Avatar Request ===');
-    console.log('User', user);
-
     if (!file) {
       throw new BadRequestException(Message.FILE_NOT_PROVIDED);
     }
